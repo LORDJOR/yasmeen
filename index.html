@@ -1,0 +1,2724 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="initial-scale=1,user-scalable=no,maximum-scale=1,width=device-width">
+        <meta name="mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <link rel="stylesheet" href="css/leaflet.css">
+        <link rel="stylesheet" href="css/L.Control.Layers.Tree.css">
+        <link rel="stylesheet" href="css/L.Control.Locate.min.css">
+        <link rel="stylesheet" href="css/qgis2web.css">
+        <link rel="stylesheet" href="css/fontawesome-all.min.css">
+        <link rel="stylesheet" href="css/leaflet-measure.css">
+        <style>
+        html, body, #map {
+            width: 100%;
+            height: 100%;
+            padding: 0;
+            margin: 0;
+        }
+        </style>
+        <title></title>
+    </head>
+    <body>
+        <div id="map">
+        </div>
+        <script src="js/qgis2web_expressions.js"></script>
+        <script src="js/leaflet.js"></script>
+        <script src="js/L.Control.Layers.Tree.min.js"></script>
+        <script src="js/L.Control.Locate.min.js"></script>
+        <script src="js/multi-style-layer.js"></script>
+        <script src="js/leaflet.rotatedMarker.js"></script>
+        <script src="js/leaflet.pattern.js"></script>
+        <script src="js/leaflet-hash.js"></script>
+        <script src="js/Autolinker.min.js"></script>
+        <script src="js/rbush.min.js"></script>
+        <script src="js/labelgun.min.js"></script>
+        <script src="js/labels.js"></script>
+        <script src="js/leaflet-measure.js"></script>
+        <script src="data/ALYASMEEN_DISCRECT_1.js"></script>
+        <script src="data/FL_SUR_CAD_2.js"></script>
+        <script src="data/FL_SUR_CAD_3.js"></script>
+        <script src="data/FL_SUR_component_4.js"></script>
+        <script>
+        var highlightLayer;
+        function highlightFeature(e) {
+            highlightLayer = e.target;
+            highlightLayer.openPopup();
+        }
+        var map = L.map('map', {
+            zoomControl:false, maxZoom:28, minZoom:1
+        }).fitBounds([[24.800759196299584,46.610415768364874],[24.844771280039726,46.69072435230452]]);
+        var hash = new L.Hash(map);
+        map.attributionControl.setPrefix('<a href="https://github.com/tomchadwin/qgis2web" target="_blank">qgis2web</a> &middot; <a href="https://leafletjs.com" title="A JS library for interactive maps">Leaflet</a> &middot; <a href="https://qgis.org">QGIS</a>');
+        var autolinker = new Autolinker({truncate: {length: 30, location: 'smart'}});
+        // remove popup's row if "visible-with-data"
+        function removeEmptyRowsFromPopupContent(content, feature) {
+         var tempDiv = document.createElement('div');
+         tempDiv.innerHTML = content;
+         var rows = tempDiv.querySelectorAll('tr');
+         for (var i = 0; i < rows.length; i++) {
+             var td = rows[i].querySelector('td.visible-with-data');
+             var key = td ? td.id : '';
+             if (td && td.classList.contains('visible-with-data') && feature.properties[key] == null) {
+                 rows[i].parentNode.removeChild(rows[i]);
+             }
+         }
+         return tempDiv.innerHTML;
+        }
+        // add class to format popup if it contains media
+		function addClassToPopupIfMedia(content, popup) {
+			var tempDiv = document.createElement('div');
+			tempDiv.innerHTML = content;
+			if (tempDiv.querySelector('td img')) {
+				popup._contentNode.classList.add('media');
+					// Delay to force the redraw
+					setTimeout(function() {
+						popup.update();
+					}, 10);
+			} else {
+				popup._contentNode.classList.remove('media');
+			}
+		}
+        var zoomControl = L.control.zoom({
+            position: 'topleft'
+        }).addTo(map);
+        L.control.locate({locateOptions: {maxZoom: 19}}).addTo(map);
+        var measureControl = new L.Control.Measure({
+            position: 'topleft',
+            primaryLengthUnit: 'meters',
+            secondaryLengthUnit: 'kilometers',
+            primaryAreaUnit: 'sqmeters',
+            secondaryAreaUnit: 'hectares'
+        });
+        measureControl.addTo(map);
+        document.getElementsByClassName('leaflet-control-measure-toggle')[0].innerHTML = '';
+        document.getElementsByClassName('leaflet-control-measure-toggle')[0].className += ' fas fa-ruler';
+        var bounds_group = new L.featureGroup([]);
+        function setBounds() {
+            map.setMaxBounds(map.getBounds());
+        }
+        map.createPane('pane_GoogleSatellite_0');
+        map.getPane('pane_GoogleSatellite_0').style.zIndex = 400;
+        var layer_GoogleSatellite_0 = L.tileLayer('https://www.google.com/maps/vt/lyrs=s@189&gl=cn&x={x}&y={y}&z={z}', {
+            pane: 'pane_GoogleSatellite_0',
+            opacity: 1.0,
+            attribution: '',
+            minZoom: 1,
+            maxZoom: 28,
+            minNativeZoom: 0,
+            maxNativeZoom: 20
+        });
+        layer_GoogleSatellite_0;
+        map.addLayer(layer_GoogleSatellite_0);
+        function pop_ALYASMEEN_DISCRECT_1(feature, layer) {
+            layer.on({
+                mouseout: function(e) {
+                    if (typeof layer.closePopup == 'function') {
+                        layer.closePopup();
+                    } else {
+                        layer.eachLayer(function(feature){
+                            feature.closePopup()
+                        });
+                    }
+                },
+                mouseover: highlightFeature,
+            });
+            var popupContent = '<table>\
+                    <tr>\
+                        <th scope="row">District Name</th>\
+                        <td class="visible-with-data" id="NEIGHBORHENAME">' + (feature.properties['NEIGHBORHENAME'] !== null ? autolinker.link(feature.properties['NEIGHBORHENAME'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_ALYASMEEN_DISCRECT_1_0() {
+            return {
+                pane: 'pane_ALYASMEEN_DISCRECT_1',
+                opacity: 1,
+                color: 'rgba(53,121,177,1.0)',
+                dashArray: '',
+                lineCap: 'square',
+                lineJoin: 'bevel',
+                weight: 4.0,
+                fillOpacity: 0,
+                interactive: true,
+            }
+        }
+        map.createPane('pane_ALYASMEEN_DISCRECT_1');
+        map.getPane('pane_ALYASMEEN_DISCRECT_1').style.zIndex = 401;
+        map.getPane('pane_ALYASMEEN_DISCRECT_1').style['mix-blend-mode'] = 'normal';
+        var layer_ALYASMEEN_DISCRECT_1 = new L.geoJson(json_ALYASMEEN_DISCRECT_1, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_ALYASMEEN_DISCRECT_1',
+            layerName: 'layer_ALYASMEEN_DISCRECT_1',
+            pane: 'pane_ALYASMEEN_DISCRECT_1',
+            onEachFeature: pop_ALYASMEEN_DISCRECT_1,
+            style: style_ALYASMEEN_DISCRECT_1_0,
+        });
+        bounds_group.addLayer(layer_ALYASMEEN_DISCRECT_1);
+        map.addLayer(layer_ALYASMEEN_DISCRECT_1);
+        function pop_FL_SUR_CAD_2(feature, layer) {
+            layer.on({
+                mouseout: function(e) {
+                    if (typeof layer.closePopup == 'function') {
+                        layer.closePopup();
+                    } else {
+                        layer.eachLayer(function(feature){
+                            feature.closePopup()
+                        });
+                    }
+                },
+                mouseover: highlightFeature,
+            });
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['OBJECTID'] !== null ? autolinker.link(feature.properties['OBJECTID'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_PM_GNH_ID'] !== null ? autolinker.link(feature.properties['SUR_PM_GNH_ID'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_PM_GNH_NAME_AR'] !== null ? autolinker.link(feature.properties['SUR_PM_GNH_NAME_AR'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_PM_GNH_NAME_EN'] !== null ? autolinker.link(feature.properties['SUR_PM_GNH_NAME_EN'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_PM_COMMENTS'] !== null ? autolinker.link(feature.properties['SUR_PM_COMMENTS'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_PM_CONSTRUCTION_GROUP'] !== null ? autolinker.link(feature.properties['SUR_PM_CONSTRUCTION_GROUP'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_PM_CONSTRUCTION_PACKAGE'] !== null ? autolinker.link(feature.properties['SUR_PM_CONSTRUCTION_PACKAGE'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_PM_CURRENT_STAGE'] !== null ? autolinker.link(feature.properties['SUR_PM_CURRENT_STAGE'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_PM_DESIGN_DS'] !== null ? autolinker.link(feature.properties['SUR_PM_DESIGN_DS'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_PM_DESIGN_GROUP'] !== null ? autolinker.link(feature.properties['SUR_PM_DESIGN_GROUP'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_PM_DESIGN_PACKAGE'] !== null ? autolinker.link(feature.properties['SUR_PM_DESIGN_PACKAGE'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_PM_EXISTING_FUTURE'] !== null ? autolinker.link(feature.properties['SUR_PM_EXISTING_FUTURE'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_PM_PMC_GROUP'] !== null ? autolinker.link(feature.properties['SUR_PM_PMC_GROUP'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_PM_PMC_PACKAGE'] !== null ? autolinker.link(feature.properties['SUR_PM_PMC_PACKAGE'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_PM_SCOPE'] !== null ? autolinker.link(feature.properties['SUR_PM_SCOPE'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_PM_SCOPE_REMARKS'] !== null ? autolinker.link(feature.properties['SUR_PM_SCOPE_REMARKS'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_CL_CHARACTER_ZONE'] !== null ? autolinker.link(feature.properties['SUR_CL_CHARACTER_ZONE'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_CL_GUIDELINE_CODE'] !== null ? autolinker.link(feature.properties['SUR_CL_GUIDELINE_CODE'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_CL_SUB_CHARACTER_ZONE'] !== null ? autolinker.link(feature.properties['SUR_CL_SUB_CHARACTER_ZONE'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_DC_DATA_SOURCE'] !== null ? autolinker.link(feature.properties['SUR_DC_DATA_SOURCE'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_DC_ORIGINAL_AREA_M2'] !== null ? autolinker.link(feature.properties['SUR_DC_ORIGINAL_AREA_M2'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_DC_REASON_OF_CHANGE'] !== null ? autolinker.link(feature.properties['SUR_DC_REASON_OF_CHANGE'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_DC_REMARK'] !== null ? autolinker.link(feature.properties['SUR_DC_REMARK'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_DC_STAKEHOLDER_NAME'] !== null ? autolinker.link(feature.properties['SUR_DC_STAKEHOLDER_NAME'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_ES_QUANTITY'] !== null ? autolinker.link(feature.properties['SUR_ES_QUANTITY'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_ES_QUANTITY_UNIT'] !== null ? autolinker.link(feature.properties['SUR_ES_QUANTITY_UNIT'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_ES_TREE_BUDGET_CNT'] !== null ? autolinker.link(feature.properties['SUR_ES_TREE_BUDGET_CNT'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_ES_WATER_BUDGET_M3'] !== null ? autolinker.link(feature.properties['SUR_ES_WATER_BUDGET_M3'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_ID_NAME_ARABIC'] !== null ? autolinker.link(feature.properties['SUR_ID_NAME_ARABIC'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_ID_NAME_ENGLISH'] !== null ? autolinker.link(feature.properties['SUR_ID_NAME_ENGLISH'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">ID_UID</th>\
+                        <td class="visible-with-data" id="SUR_ID_UID">' + (feature.properties['SUR_ID_UID'] !== null ? autolinker.link(feature.properties['SUR_ID_UID'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_ID_UID_V1'] !== null ? autolinker.link(feature.properties['SUR_ID_UID_V1'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_ID_UID_V2'] !== null ? autolinker.link(feature.properties['SUR_ID_UID_V2'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_LO_ANH_ID'] !== null ? autolinker.link(feature.properties['SUR_LO_ANH_ID'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_LO_ANH_NAME_AR'] !== null ? autolinker.link(feature.properties['SUR_LO_ANH_NAME_AR'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_LO_ANH_NAME_EN'] !== null ? autolinker.link(feature.properties['SUR_LO_ANH_NAME_EN'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_LU_AMANAH'] !== null ? autolinker.link(feature.properties['SUR_LU_AMANAH'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_LU_CONTEXTUAL'] !== null ? autolinker.link(feature.properties['SUR_LU_CONTEXTUAL'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_LU_PLAN'] !== null ? autolinker.link(feature.properties['SUR_LU_PLAN'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_QC_ACTION'] !== null ? autolinker.link(feature.properties['SUR_QC_ACTION'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_QC_BY'] !== null ? autolinker.link(feature.properties['SUR_QC_BY'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_QC_REMARKS'] !== null ? autolinker.link(feature.properties['SUR_QC_REMARKS'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_QC_SUBMITTAL_CODE'] !== null ? autolinker.link(feature.properties['SUR_QC_SUBMITTAL_CODE'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_SYS_CREATED'] !== null ? autolinker.link(feature.properties['SUR_SYS_CREATED'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_SYS_CREATED_BY'] !== null ? autolinker.link(feature.properties['SUR_SYS_CREATED_BY'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_SYS_MODIFIED'] !== null ? autolinker.link(feature.properties['SUR_SYS_MODIFIED'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_SYS_MODIFIED_BY'] !== null ? autolinker.link(feature.properties['SUR_SYS_MODIFIED_BY'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_CI_BORDER_EAST_DESC'] !== null ? autolinker.link(feature.properties['SUR_CI_BORDER_EAST_DESC'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_CI_BORDER_EAST_LENGTH'] !== null ? autolinker.link(feature.properties['SUR_CI_BORDER_EAST_LENGTH'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_CI_BORDER_NORTH_DESC'] !== null ? autolinker.link(feature.properties['SUR_CI_BORDER_NORTH_DESC'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_CI_BORDER_NORTH_LENGT'] !== null ? autolinker.link(feature.properties['SUR_CI_BORDER_NORTH_LENGT'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_CI_BORDER_SOUTH_DESC'] !== null ? autolinker.link(feature.properties['SUR_CI_BORDER_SOUTH_DESC'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_CI_BORDER_SOUTH_LENGTH'] !== null ? autolinker.link(feature.properties['SUR_CI_BORDER_SOUTH_LENGTH'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_CI_BORDER_WEST_DESC'] !== null ? autolinker.link(feature.properties['SUR_CI_BORDER_WEST_DESC'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_CI_BORDER_WEST_LENGTH'] !== null ? autolinker.link(feature.properties['SUR_CI_BORDER_WEST_LENGTH'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_CI_CENTER_X'] !== null ? autolinker.link(feature.properties['SUR_CI_CENTER_X'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_CI_CENTER_Y'] !== null ? autolinker.link(feature.properties['SUR_CI_CENTER_Y'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_CI_CORNER_NE_X'] !== null ? autolinker.link(feature.properties['SUR_CI_CORNER_NE_X'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_CI_CORNER_NE_Y'] !== null ? autolinker.link(feature.properties['SUR_CI_CORNER_NE_Y'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_CI_CORNER_NW_X'] !== null ? autolinker.link(feature.properties['SUR_CI_CORNER_NW_X'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_CI_CORNER_NW_Y'] !== null ? autolinker.link(feature.properties['SUR_CI_CORNER_NW_Y'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_CI_CORNER_SE_X'] !== null ? autolinker.link(feature.properties['SUR_CI_CORNER_SE_X'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_CI_CORNER_SE_Y'] !== null ? autolinker.link(feature.properties['SUR_CI_CORNER_SE_Y'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_CI_CORNER_SW_X'] !== null ? autolinker.link(feature.properties['SUR_CI_CORNER_SW_X'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_CI_CORNER_SW_Y'] !== null ? autolinker.link(feature.properties['SUR_CI_CORNER_SW_Y'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_CI_LEGAL_RECORD_TYPE'] !== null ? autolinker.link(feature.properties['SUR_CI_LEGAL_RECORD_TYPE'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_CI_MAHDAR_NO'] !== null ? autolinker.link(feature.properties['SUR_CI_MAHDAR_NO'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_CI_MATCHING_STATUS'] !== null ? autolinker.link(feature.properties['SUR_CI_MATCHING_STATUS'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_CI_NAME_IN_PALN'] !== null ? autolinker.link(feature.properties['SUR_CI_NAME_IN_PALN'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_CI_PARCEL_NO'] !== null ? autolinker.link(feature.properties['SUR_CI_PARCEL_NO'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_CI_PLAN_NO'] !== null ? autolinker.link(feature.properties['SUR_CI_PLAN_NO'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_DC_SURVEY_AREA_M2'] !== null ? autolinker.link(feature.properties['SUR_DC_SURVEY_AREA_M2'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_DC_SURVEY_COMPANY_NAME'] !== null ? autolinker.link(feature.properties['SUR_DC_SURVEY_COMPANY_NAME'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_DC_SURVEY_DATE'] !== null ? autolinker.link(feature.properties['SUR_DC_SURVEY_DATE'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_DC_SURVEY_REPORT_NAME'] !== null ? autolinker.link(feature.properties['SUR_DC_SURVEY_REPORT_NAME'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_EC_AVAILABLE_OPEN_SPACE'] !== null ? autolinker.link(feature.properties['SUR_EC_AVAILABLE_OPEN_SPACE'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_EC_BUILT_UP_M2'] !== null ? autolinker.link(feature.properties['SUR_EC_BUILT_UP_M2'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_EC_CONTRACTOR_NAME'] !== null ? autolinker.link(feature.properties['SUR_EC_CONTRACTOR_NAME'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_EC_DEVELOPMENT_STATUS'] !== null ? autolinker.link(feature.properties['SUR_EC_DEVELOPMENT_STATUS'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_EC_HARDSCAPE_M2'] !== null ? autolinker.link(feature.properties['SUR_EC_HARDSCAPE_M2'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_EC_OVERLAPPED_WITH'] !== null ? autolinker.link(feature.properties['SUR_EC_OVERLAPPED_WITH'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_EC_SOFTSCAPE_M2'] !== null ? autolinker.link(feature.properties['SUR_EC_SOFTSCAPE_M2'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_GC_CRNT_CANOPY_M2'] !== null ? autolinker.link(feature.properties['SUR_GC_CRNT_CANOPY_M2'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_GC_CRNT_LAWN_M2'] !== null ? autolinker.link(feature.properties['SUR_GC_CRNT_LAWN_M2'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_GC_CRNT_SHRUBS_CNT'] !== null ? autolinker.link(feature.properties['SUR_GC_CRNT_SHRUBS_CNT'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_GC_CRNT_TREES_CNT'] !== null ? autolinker.link(feature.properties['SUR_GC_CRNT_TREES_CNT'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_GC_KPI_CRNT_CANOPY_PCT'] !== null ? autolinker.link(feature.properties['SUR_GC_KPI_CRNT_CANOPY_PCT'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_GC_KPI_CRNT_VEGCOVER_PCT'] !== null ? autolinker.link(feature.properties['SUR_GC_KPI_CRNT_VEGCOVER_PCT'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_GC_LEVEL_OF_INTERVENTION'] !== null ? autolinker.link(feature.properties['SUR_GC_LEVEL_OF_INTERVENTION'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['IC_CRNT_IRRIGATION_WATER_TYPE'] !== null ? autolinker.link(feature.properties['IC_CRNT_IRRIGATION_WATER_TYPE'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_IC_CRNT_WATER_DEMAND_M3'] !== null ? autolinker.link(feature.properties['SUR_IC_CRNT_WATER_DEMAND_M3'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_IC_CRNT_WATER_QUALITY'] !== null ? autolinker.link(feature.properties['SUR_IC_CRNT_WATER_QUALITY'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_IC_CRNT_WATER_SOURCE'] !== null ? autolinker.link(feature.properties['SUR_IC_CRNT_WATER_SOURCE'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_CL_CATEGORY'] !== null ? autolinker.link(feature.properties['SUR_CL_CATEGORY'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_CL_MAIN_CATEGORY'] !== null ? autolinker.link(feature.properties['SUR_CL_MAIN_CATEGORY'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_CL_SUBCATEGORY'] !== null ? autolinker.link(feature.properties['SUR_CL_SUBCATEGORY'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_OWNERSHIP_TYPE'] !== null ? autolinker.link(feature.properties['SUR_OWNERSHIP_TYPE'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_EX_ROAD_WIDTH'] !== null ? autolinker.link(feature.properties['SUR_EX_ROAD_WIDTH'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_EX_ROAD_WIDTH_DESC'] !== null ? autolinker.link(feature.properties['SUR_EX_ROAD_WIDTH_DESC'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['CREATED_USER'] !== null ? autolinker.link(feature.properties['CREATED_USER'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['CREATED_DATE'] !== null ? autolinker.link(feature.properties['CREATED_DATE'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['LAST_EDITED_USER'] !== null ? autolinker.link(feature.properties['LAST_EDITED_USER'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['LAST_EDITED_DATE'] !== null ? autolinker.link(feature.properties['LAST_EDITED_DATE'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_CL_MAIN_CATEGORY_V2'] !== null ? autolinker.link(feature.properties['SUR_CL_MAIN_CATEGORY_V2'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_CL_CATEGORY_V2'] !== null ? autolinker.link(feature.properties['SUR_CL_CATEGORY_V2'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_CL_SUBCATEGORY_V2'] !== null ? autolinker.link(feature.properties['SUR_CL_SUBCATEGORY_V2'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['FABRIC_DATA_SOURCE'] !== null ? autolinker.link(feature.properties['FABRIC_DATA_SOURCE'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['MERGE_REF_ID_UID'] !== null ? autolinker.link(feature.properties['MERGE_REF_ID_UID'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['CatchBasin'] !== null ? autolinker.link(feature.properties['CatchBasin'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Ele_meter'] !== null ? autolinker.link(feature.properties['Ele_meter'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Elec_box'] !== null ? autolinker.link(feature.properties['Elec_box'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['LIGHT_STRE'] !== null ? autolinker.link(feature.properties['LIGHT_STRE'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Tel_Box'] !== null ? autolinker.link(feature.properties['Tel_Box'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Feeder_pil'] !== null ? autolinker.link(feature.properties['Feeder_pil'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Firehydrant'] !== null ? autolinker.link(feature.properties['Firehydrant'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['IRRIGATION'] !== null ? autolinker.link(feature.properties['IRRIGATION'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['irrg_valve'] !== null ? autolinker.link(feature.properties['irrg_valve'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['ISE_CLEAN'] !== null ? autolinker.link(feature.properties['ISE_CLEAN'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['HOUSE_CON'] !== null ? autolinker.link(feature.properties['HOUSE_CON'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['TELECOM_C'] !== null ? autolinker.link(feature.properties['TELECOM_C'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['TELCOM_T'] !== null ? autolinker.link(feature.properties['TELCOM_T'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['TRANSFORMER'] !== null ? autolinker.link(feature.properties['TRANSFORMER'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['WaterMeter'] !== null ? autolinker.link(feature.properties['WaterMeter'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Water_valve'] !== null ? autolinker.link(feature.properties['Water_valve'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['MANHOLE'] !== null ? autolinker.link(feature.properties['MANHOLE'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['TREE_SQM1'] !== null ? autolinker.link(feature.properties['TREE_SQM1'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['TREE_KPI1'] !== null ? autolinker.link(feature.properties['TREE_KPI1'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['PLANTER_AR'] !== null ? autolinker.link(feature.properties['PLANTER_AR'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['pLANTER_KP'] !== null ? autolinker.link(feature.properties['pLANTER_KP'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['FlowerBed_'] !== null ? autolinker.link(feature.properties['FlowerBed_'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['FlowerBedK'] !== null ? autolinker.link(feature.properties['FlowerBedK'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SHRUB_AREA'] !== null ? autolinker.link(feature.properties['SHRUB_AREA'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SHRUB_KPI'] !== null ? autolinker.link(feature.properties['SHRUB_KPI'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['LAWN_AREA'] !== null ? autolinker.link(feature.properties['LAWN_AREA'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['LAWN_KPI'] !== null ? autolinker.link(feature.properties['LAWN_KPI'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['HEDGE_AREA'] !== null ? autolinker.link(feature.properties['HEDGE_AREA'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['HEDGE_KPI'] !== null ? autolinker.link(feature.properties['HEDGE_KPI'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['GROUND_AREA'] !== null ? autolinker.link(feature.properties['GROUND_AREA'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['GROUND_KPI'] !== null ? autolinker.link(feature.properties['GROUND_KPI'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Relevant_buildings'] !== null ? autolinker.link(feature.properties['Relevant_buildings'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Doc_Ref'] !== null ? autolinker.link(feature.properties['Doc_Ref'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Road_Sidewalk'] !== null ? autolinker.link(feature.properties['Road_Sidewalk'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['sidewalk_matireal'] !== null ? autolinker.link(feature.properties['sidewalk_matireal'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['sidewalk_Width'] !== null ? autolinker.link(feature.properties['sidewalk_Width'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Carriageway'] !== null ? autolinker.link(feature.properties['Carriageway'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Median_Area'] !== null ? autolinker.link(feature.properties['Median_Area'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['surface_new'] !== null ? autolinker.link(feature.properties['surface_new'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Condition_new'] !== null ? autolinker.link(feature.properties['Condition_new'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Parking'] !== null ? autolinker.link(feature.properties['Parking'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Existence'] !== null ? autolinker.link(feature.properties['Existence'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['ROW'] !== null ? autolinker.link(feature.properties['ROW'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Plots_definition'] !== null ? autolinker.link(feature.properties['Plots_definition'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Median'] !== null ? autolinker.link(feature.properties['Median'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Median_width'] !== null ? autolinker.link(feature.properties['Median_width'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Carriage_Width'] !== null ? autolinker.link(feature.properties['Carriage_Width'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['ROAD_MARKER'] !== null ? autolinker.link(feature.properties['ROAD_MARKER'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_EX_R_1'] !== null ? autolinker.link(feature.properties['REF_EX_R_1'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['FID'] !== null ? autolinker.link(feature.properties['FID'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['OBJECTID_1'] !== null ? autolinker.link(feature.properties['OBJECTID_1'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_PM_GNH'] !== null ? autolinker.link(feature.properties['REF_PM_GNH'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_PM_G_1'] !== null ? autolinker.link(feature.properties['REF_PM_G_1'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_PM_G_2'] !== null ? autolinker.link(feature.properties['REF_PM_G_2'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_PM_COM'] !== null ? autolinker.link(feature.properties['REF_PM_COM'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_PM_CON'] !== null ? autolinker.link(feature.properties['REF_PM_CON'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_PM_C_1'] !== null ? autolinker.link(feature.properties['REF_PM_C_1'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_PM_CUR'] !== null ? autolinker.link(feature.properties['REF_PM_CUR'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_PM_DES'] !== null ? autolinker.link(feature.properties['REF_PM_DES'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_PM_D_1'] !== null ? autolinker.link(feature.properties['REF_PM_D_1'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_PM_D_2'] !== null ? autolinker.link(feature.properties['REF_PM_D_2'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_PM_EXI'] !== null ? autolinker.link(feature.properties['REF_PM_EXI'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_PM_PMC'] !== null ? autolinker.link(feature.properties['REF_PM_PMC'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_PM_P_1'] !== null ? autolinker.link(feature.properties['REF_PM_P_1'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_PM_SCO'] !== null ? autolinker.link(feature.properties['REF_PM_SCO'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_PM_S_1'] !== null ? autolinker.link(feature.properties['REF_PM_S_1'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_CL_CHA'] !== null ? autolinker.link(feature.properties['REF_CL_CHA'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_CL_GUI'] !== null ? autolinker.link(feature.properties['REF_CL_GUI'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_CL_SUB'] !== null ? autolinker.link(feature.properties['REF_CL_SUB'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_DC_DAT'] !== null ? autolinker.link(feature.properties['REF_DC_DAT'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_DC_ORI'] !== null ? autolinker.link(feature.properties['REF_DC_ORI'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_DC_REA'] !== null ? autolinker.link(feature.properties['REF_DC_REA'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_DC_REM'] !== null ? autolinker.link(feature.properties['REF_DC_REM'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_DC_STA'] !== null ? autolinker.link(feature.properties['REF_DC_STA'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_ES_QUA'] !== null ? autolinker.link(feature.properties['REF_ES_QUA'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_ES_Q_1'] !== null ? autolinker.link(feature.properties['REF_ES_Q_1'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_ES_TRE'] !== null ? autolinker.link(feature.properties['REF_ES_TRE'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_ES_WAT'] !== null ? autolinker.link(feature.properties['REF_ES_WAT'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_ID_NAM'] !== null ? autolinker.link(feature.properties['REF_ID_NAM'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_ID_N_1'] !== null ? autolinker.link(feature.properties['REF_ID_N_1'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_ID_UID'] !== null ? autolinker.link(feature.properties['REF_ID_UID'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_ID_U_1'] !== null ? autolinker.link(feature.properties['REF_ID_U_1'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_ID_U_2'] !== null ? autolinker.link(feature.properties['REF_ID_U_2'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_LO_ANH'] !== null ? autolinker.link(feature.properties['REF_LO_ANH'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_LO_A_1'] !== null ? autolinker.link(feature.properties['REF_LO_A_1'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_LO_A_2'] !== null ? autolinker.link(feature.properties['REF_LO_A_2'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_LU_CON'] !== null ? autolinker.link(feature.properties['REF_LU_CON'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_LU_PLA'] !== null ? autolinker.link(feature.properties['REF_LU_PLA'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_QC_ACT'] !== null ? autolinker.link(feature.properties['REF_QC_ACT'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_QC_BY'] !== null ? autolinker.link(feature.properties['REF_QC_BY'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_QC_REM'] !== null ? autolinker.link(feature.properties['REF_QC_REM'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_QC_SUB'] !== null ? autolinker.link(feature.properties['REF_QC_SUB'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_SYS_CR'] !== null ? autolinker.link(feature.properties['REF_SYS_CR'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_SYS__1'] !== null ? autolinker.link(feature.properties['REF_SYS__1'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_SYS_MO'] !== null ? autolinker.link(feature.properties['REF_SYS_MO'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_SYS__2'] !== null ? autolinker.link(feature.properties['REF_SYS__2'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_CL_CAT'] !== null ? autolinker.link(feature.properties['REF_CL_CAT'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_CL_MAI'] !== null ? autolinker.link(feature.properties['REF_CL_MAI'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_CL_S_1'] !== null ? autolinker.link(feature.properties['REF_CL_S_1'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_PM_IS_'] !== null ? autolinker.link(feature.properties['REF_PM_IS_'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_OWNERS'] !== null ? autolinker.link(feature.properties['REF_OWNERS'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_EX_ROA'] !== null ? autolinker.link(feature.properties['REF_EX_ROA'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_EX_R_12'] !== null ? autolinker.link(feature.properties['REF_EX_R_12'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_CL_ROA'] !== null ? autolinker.link(feature.properties['REF_CL_ROA'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_CI_PAR'] !== null ? autolinker.link(feature.properties['REF_CI_PAR'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_CI_PLA'] !== null ? autolinker.link(feature.properties['REF_CI_PLA'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_LU_AMA'] !== null ? autolinker.link(feature.properties['REF_LU_AMA'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_EX_EP_'] !== null ? autolinker.link(feature.properties['REF_EX_EP_'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_PM_GIS'] !== null ? autolinker.link(feature.properties['REF_PM_GIS'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_CL_M_1'] !== null ? autolinker.link(feature.properties['REF_CL_M_1'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_CL_C_1'] !== null ? autolinker.link(feature.properties['REF_CL_C_1'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_CL_S_2'] !== null ? autolinker.link(feature.properties['REF_CL_S_2'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['CREATED_US'] !== null ? autolinker.link(feature.properties['CREATED_US'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['CREATED_DA'] !== null ? autolinker.link(feature.properties['CREATED_DA'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['LAST_EDITE'] !== null ? autolinker.link(feature.properties['LAST_EDITE'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['LAST_EDI_1'] !== null ? autolinker.link(feature.properties['LAST_EDI_1'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_CI_P_1'] !== null ? autolinker.link(feature.properties['REF_CI_P_1'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_CI_P_2'] !== null ? autolinker.link(feature.properties['REF_CI_P_2'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_IRR_WA'] !== null ? autolinker.link(feature.properties['REF_IRR_WA'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['DESIGN_WAT'] !== null ? autolinker.link(feature.properties['DESIGN_WAT'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['ACTUAL_WAT'] !== null ? autolinker.link(feature.properties['ACTUAL_WAT'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SHAPE_Leng'] !== null ? autolinker.link(feature.properties['SHAPE_Leng'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SHAPE_Area_1'] !== null ? autolinker.link(feature.properties['SHAPE_Area_1'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['ES_TREE_WA'] !== null ? autolinker.link(feature.properties['ES_TREE_WA'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['ES_SHRUBS_'] !== null ? autolinker.link(feature.properties['ES_SHRUBS_'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['ES_SHRAUBS'] !== null ? autolinker.link(feature.properties['ES_SHRAUBS'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['ES_GROUNDC'] !== null ? autolinker.link(feature.properties['ES_GROUNDC'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['ES_GC_WATE'] !== null ? autolinker.link(feature.properties['ES_GC_WATE'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['ES_LAWN_M2'] !== null ? autolinker.link(feature.properties['ES_LAWN_M2'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['ES_LAWN_WA'] !== null ? autolinker.link(feature.properties['ES_LAWN_WA'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['GEN_WATER_'] !== null ? autolinker.link(feature.properties['GEN_WATER_'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['TYPE_CODE'] !== null ? autolinker.link(feature.properties['TYPE_CODE'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['TYPE'] !== null ? autolinker.link(feature.properties['TYPE'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['CONTRACT_C'] !== null ? autolinker.link(feature.properties['CONTRACT_C'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['CONTRACT_N'] !== null ? autolinker.link(feature.properties['CONTRACT_N'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['CONTRACT_S'] !== null ? autolinker.link(feature.properties['CONTRACT_S'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['CONTRACT_P'] !== null ? autolinker.link(feature.properties['CONTRACT_P'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['CONTRACT_1'] !== null ? autolinker.link(feature.properties['CONTRACT_1'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['CONTRACT_E'] !== null ? autolinker.link(feature.properties['CONTRACT_E'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['CONTRACT_2'] !== null ? autolinker.link(feature.properties['CONTRACT_2'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['CONTRACT_3'] !== null ? autolinker.link(feature.properties['CONTRACT_3'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['ACTIVITY_C'] !== null ? autolinker.link(feature.properties['ACTIVITY_C'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['ACTIVITY_N'] !== null ? autolinker.link(feature.properties['ACTIVITY_N'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['ACTIVITY_S'] !== null ? autolinker.link(feature.properties['ACTIVITY_S'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['ACTIVITY_P'] !== null ? autolinker.link(feature.properties['ACTIVITY_P'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['ACTIVITY_1'] !== null ? autolinker.link(feature.properties['ACTIVITY_1'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['ACTIVITY_E'] !== null ? autolinker.link(feature.properties['ACTIVITY_E'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['ACTIVITY_2'] !== null ? autolinker.link(feature.properties['ACTIVITY_2'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['ACTIVITY_3'] !== null ? autolinker.link(feature.properties['ACTIVITY_3'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['ZONE_NUMBE'] !== null ? autolinker.link(feature.properties['ZONE_NUMBE'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['ZONE_DESIG'] !== null ? autolinker.link(feature.properties['ZONE_DESIG'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['ZONE_CONST'] !== null ? autolinker.link(feature.properties['ZONE_CONST'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['ES_CANOPY_'] !== null ? autolinker.link(feature.properties['ES_CANOPY_'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['ES_CANOPY1'] !== null ? autolinker.link(feature.properties['ES_CANOPY1'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['ES_SHRUBS1'] !== null ? autolinker.link(feature.properties['ES_SHRUBS1'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['ES_GROUN_1'] !== null ? autolinker.link(feature.properties['ES_GROUN_1'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['TREE_SQM1_1'] !== null ? autolinker.link(feature.properties['TREE_SQM1_1'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['TREE_KPI1_1'] !== null ? autolinker.link(feature.properties['TREE_KPI1_1'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['PLANTER_AR_1'] !== null ? autolinker.link(feature.properties['PLANTER_AR_1'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['pLANTER_KP_1'] !== null ? autolinker.link(feature.properties['pLANTER_KP_1'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['FlowerBed1'] !== null ? autolinker.link(feature.properties['FlowerBed1'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['FlowerBed1_1'] !== null ? autolinker.link(feature.properties['FlowerBed1_1'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SHRUB_AREA_1'] !== null ? autolinker.link(feature.properties['SHRUB_AREA_1'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SHRUB_KPI_1'] !== null ? autolinker.link(feature.properties['SHRUB_KPI_1'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['LAWN_AREA_1'] !== null ? autolinker.link(feature.properties['LAWN_AREA_1'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['LAWN_KPI_1'] !== null ? autolinker.link(feature.properties['LAWN_KPI_1'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['HEDGE_AREA_1'] !== null ? autolinker.link(feature.properties['HEDGE_AREA_1'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['HEDGE_KPI_1'] !== null ? autolinker.link(feature.properties['HEDGE_KPI_1'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['GROUND_COV'] !== null ? autolinker.link(feature.properties['GROUND_COV'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['GROUND_C_1'] !== null ? autolinker.link(feature.properties['GROUND_C_1'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['BOUNDARY_A'] !== null ? autolinker.link(feature.properties['BOUNDARY_A'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['AMANA_LINK'] !== null ? autolinker.link(feature.properties['AMANA_LINK'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['UTT_Catch_'] !== null ? autolinker.link(feature.properties['UTT_Catch_'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['UTT_ELEC_M'] !== null ? autolinker.link(feature.properties['UTT_ELEC_M'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['UTT_ELEC_B'] !== null ? autolinker.link(feature.properties['UTT_ELEC_B'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['LIGHT_STRE_1'] !== null ? autolinker.link(feature.properties['LIGHT_STRE_1'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['TELE_B'] !== null ? autolinker.link(feature.properties['TELE_B'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Feeder_pil_1'] !== null ? autolinker.link(feature.properties['Feeder_pil_1'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['FIRE_H'] !== null ? autolinker.link(feature.properties['FIRE_H'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['IRRIGATION_1'] !== null ? autolinker.link(feature.properties['IRRIGATION_1'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['irrg_valve_1'] !== null ? autolinker.link(feature.properties['irrg_valve_1'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['ISE_CLEAN_1'] !== null ? autolinker.link(feature.properties['ISE_CLEAN_1'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['HOUSE_CON_1'] !== null ? autolinker.link(feature.properties['HOUSE_CON_1'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['TELECOM_C_1'] !== null ? autolinker.link(feature.properties['TELECOM_C_1'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['TELCOM_T_1'] !== null ? autolinker.link(feature.properties['TELCOM_T_1'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['TRANSF'] !== null ? autolinker.link(feature.properties['TRANSF'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['W_METER'] !== null ? autolinker.link(feature.properties['W_METER'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['W_VALVE'] !== null ? autolinker.link(feature.properties['W_VALVE'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['MANHOLE_1'] !== null ? autolinker.link(feature.properties['MANHOLE_1'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['AMMANA_PIC'] !== null ? autolinker.link(feature.properties['AMMANA_PIC'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Photo1'] !== null ? autolinker.link(feature.properties['Photo1'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['photo2'] !== null ? autolinker.link(feature.properties['photo2'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['photo3'] !== null ? autolinker.link(feature.properties['photo3'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['photo4'] !== null ? autolinker.link(feature.properties['photo4'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SHAPE_Length'] !== null ? autolinker.link(feature.properties['SHAPE_Length'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SHAPE_Area'] !== null ? autolinker.link(feature.properties['SHAPE_Area'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['photo5'] !== null ? autolinker.link(feature.properties['photo5'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['photo6'] !== null ? autolinker.link(feature.properties['photo6'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['newname'] !== null ? autolinker.link(feature.properties['newname'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_FL_SUR_CAD_2_0() {
+            return {
+                pane: 'pane_FL_SUR_CAD_2',
+                opacity: 1,
+                color: 'rgba(0,0,0,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(102,212,210,1.0)',
+                interactive: true,
+            }
+        }
+        map.createPane('pane_FL_SUR_CAD_2');
+        map.getPane('pane_FL_SUR_CAD_2').style.zIndex = 402;
+        map.getPane('pane_FL_SUR_CAD_2').style['mix-blend-mode'] = 'normal';
+        var layer_FL_SUR_CAD_2 = new L.geoJson(json_FL_SUR_CAD_2, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_FL_SUR_CAD_2',
+            layerName: 'layer_FL_SUR_CAD_2',
+            pane: 'pane_FL_SUR_CAD_2',
+            onEachFeature: pop_FL_SUR_CAD_2,
+            style: style_FL_SUR_CAD_2_0,
+        });
+        bounds_group.addLayer(layer_FL_SUR_CAD_2);
+        map.addLayer(layer_FL_SUR_CAD_2);
+        function pop_FL_SUR_CAD_3(feature, layer) {
+            layer.on({
+                mouseout: function(e) {
+                    if (typeof layer.closePopup == 'function') {
+                        layer.closePopup();
+                    } else {
+                        layer.eachLayer(function(feature){
+                            feature.closePopup()
+                        });
+                    }
+                },
+                mouseover: highlightFeature,
+            });
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['OBJECTID'] !== null ? autolinker.link(feature.properties['OBJECTID'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_PM_GNH_ID'] !== null ? autolinker.link(feature.properties['SUR_PM_GNH_ID'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_PM_GNH_NAME_AR'] !== null ? autolinker.link(feature.properties['SUR_PM_GNH_NAME_AR'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_PM_GNH_NAME_EN'] !== null ? autolinker.link(feature.properties['SUR_PM_GNH_NAME_EN'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_PM_COMMENTS'] !== null ? autolinker.link(feature.properties['SUR_PM_COMMENTS'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_PM_CONSTRUCTION_GROUP'] !== null ? autolinker.link(feature.properties['SUR_PM_CONSTRUCTION_GROUP'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_PM_CONSTRUCTION_PACKAGE'] !== null ? autolinker.link(feature.properties['SUR_PM_CONSTRUCTION_PACKAGE'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_PM_CURRENT_STAGE'] !== null ? autolinker.link(feature.properties['SUR_PM_CURRENT_STAGE'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_PM_DESIGN_DS'] !== null ? autolinker.link(feature.properties['SUR_PM_DESIGN_DS'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_PM_DESIGN_GROUP'] !== null ? autolinker.link(feature.properties['SUR_PM_DESIGN_GROUP'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_PM_DESIGN_PACKAGE'] !== null ? autolinker.link(feature.properties['SUR_PM_DESIGN_PACKAGE'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_PM_EXISTING_FUTURE'] !== null ? autolinker.link(feature.properties['SUR_PM_EXISTING_FUTURE'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_PM_PMC_GROUP'] !== null ? autolinker.link(feature.properties['SUR_PM_PMC_GROUP'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_PM_PMC_PACKAGE'] !== null ? autolinker.link(feature.properties['SUR_PM_PMC_PACKAGE'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_PM_SCOPE'] !== null ? autolinker.link(feature.properties['SUR_PM_SCOPE'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_PM_SCOPE_REMARKS'] !== null ? autolinker.link(feature.properties['SUR_PM_SCOPE_REMARKS'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_CL_CHARACTER_ZONE'] !== null ? autolinker.link(feature.properties['SUR_CL_CHARACTER_ZONE'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_CL_GUIDELINE_CODE'] !== null ? autolinker.link(feature.properties['SUR_CL_GUIDELINE_CODE'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_CL_SUB_CHARACTER_ZONE'] !== null ? autolinker.link(feature.properties['SUR_CL_SUB_CHARACTER_ZONE'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_DC_DATA_SOURCE'] !== null ? autolinker.link(feature.properties['SUR_DC_DATA_SOURCE'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_DC_ORIGINAL_AREA_M2'] !== null ? autolinker.link(feature.properties['SUR_DC_ORIGINAL_AREA_M2'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_DC_REASON_OF_CHANGE'] !== null ? autolinker.link(feature.properties['SUR_DC_REASON_OF_CHANGE'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_DC_REMARK'] !== null ? autolinker.link(feature.properties['SUR_DC_REMARK'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_DC_STAKEHOLDER_NAME'] !== null ? autolinker.link(feature.properties['SUR_DC_STAKEHOLDER_NAME'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_ES_QUANTITY'] !== null ? autolinker.link(feature.properties['SUR_ES_QUANTITY'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_ES_QUANTITY_UNIT'] !== null ? autolinker.link(feature.properties['SUR_ES_QUANTITY_UNIT'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_ES_TREE_BUDGET_CNT'] !== null ? autolinker.link(feature.properties['SUR_ES_TREE_BUDGET_CNT'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_ES_WATER_BUDGET_M3'] !== null ? autolinker.link(feature.properties['SUR_ES_WATER_BUDGET_M3'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_ID_NAME_ARABIC'] !== null ? autolinker.link(feature.properties['SUR_ID_NAME_ARABIC'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_ID_NAME_ENGLISH'] !== null ? autolinker.link(feature.properties['SUR_ID_NAME_ENGLISH'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_ID_UID'] !== null ? autolinker.link(feature.properties['SUR_ID_UID'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_ID_UID_V1'] !== null ? autolinker.link(feature.properties['SUR_ID_UID_V1'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_ID_UID_V2'] !== null ? autolinker.link(feature.properties['SUR_ID_UID_V2'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_LO_ANH_ID'] !== null ? autolinker.link(feature.properties['SUR_LO_ANH_ID'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_LO_ANH_NAME_AR'] !== null ? autolinker.link(feature.properties['SUR_LO_ANH_NAME_AR'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_LO_ANH_NAME_EN'] !== null ? autolinker.link(feature.properties['SUR_LO_ANH_NAME_EN'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_LU_AMANAH'] !== null ? autolinker.link(feature.properties['SUR_LU_AMANAH'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_LU_CONTEXTUAL'] !== null ? autolinker.link(feature.properties['SUR_LU_CONTEXTUAL'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_LU_PLAN'] !== null ? autolinker.link(feature.properties['SUR_LU_PLAN'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_QC_ACTION'] !== null ? autolinker.link(feature.properties['SUR_QC_ACTION'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_QC_BY'] !== null ? autolinker.link(feature.properties['SUR_QC_BY'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_QC_REMARKS'] !== null ? autolinker.link(feature.properties['SUR_QC_REMARKS'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_QC_SUBMITTAL_CODE'] !== null ? autolinker.link(feature.properties['SUR_QC_SUBMITTAL_CODE'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_SYS_CREATED'] !== null ? autolinker.link(feature.properties['SUR_SYS_CREATED'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_SYS_CREATED_BY'] !== null ? autolinker.link(feature.properties['SUR_SYS_CREATED_BY'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_SYS_MODIFIED'] !== null ? autolinker.link(feature.properties['SUR_SYS_MODIFIED'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_SYS_MODIFIED_BY'] !== null ? autolinker.link(feature.properties['SUR_SYS_MODIFIED_BY'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_CI_BORDER_EAST_DESC'] !== null ? autolinker.link(feature.properties['SUR_CI_BORDER_EAST_DESC'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_CI_BORDER_EAST_LENGTH'] !== null ? autolinker.link(feature.properties['SUR_CI_BORDER_EAST_LENGTH'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_CI_BORDER_NORTH_DESC'] !== null ? autolinker.link(feature.properties['SUR_CI_BORDER_NORTH_DESC'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_CI_BORDER_NORTH_LENGT'] !== null ? autolinker.link(feature.properties['SUR_CI_BORDER_NORTH_LENGT'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_CI_BORDER_SOUTH_DESC'] !== null ? autolinker.link(feature.properties['SUR_CI_BORDER_SOUTH_DESC'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_CI_BORDER_SOUTH_LENGTH'] !== null ? autolinker.link(feature.properties['SUR_CI_BORDER_SOUTH_LENGTH'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_CI_BORDER_WEST_DESC'] !== null ? autolinker.link(feature.properties['SUR_CI_BORDER_WEST_DESC'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_CI_BORDER_WEST_LENGTH'] !== null ? autolinker.link(feature.properties['SUR_CI_BORDER_WEST_LENGTH'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_CI_CENTER_X'] !== null ? autolinker.link(feature.properties['SUR_CI_CENTER_X'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_CI_CENTER_Y'] !== null ? autolinker.link(feature.properties['SUR_CI_CENTER_Y'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_CI_CORNER_NE_X'] !== null ? autolinker.link(feature.properties['SUR_CI_CORNER_NE_X'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_CI_CORNER_NE_Y'] !== null ? autolinker.link(feature.properties['SUR_CI_CORNER_NE_Y'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_CI_CORNER_NW_X'] !== null ? autolinker.link(feature.properties['SUR_CI_CORNER_NW_X'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_CI_CORNER_NW_Y'] !== null ? autolinker.link(feature.properties['SUR_CI_CORNER_NW_Y'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_CI_CORNER_SE_X'] !== null ? autolinker.link(feature.properties['SUR_CI_CORNER_SE_X'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_CI_CORNER_SE_Y'] !== null ? autolinker.link(feature.properties['SUR_CI_CORNER_SE_Y'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_CI_CORNER_SW_X'] !== null ? autolinker.link(feature.properties['SUR_CI_CORNER_SW_X'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_CI_CORNER_SW_Y'] !== null ? autolinker.link(feature.properties['SUR_CI_CORNER_SW_Y'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_CI_LEGAL_RECORD_TYPE'] !== null ? autolinker.link(feature.properties['SUR_CI_LEGAL_RECORD_TYPE'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_CI_MAHDAR_NO'] !== null ? autolinker.link(feature.properties['SUR_CI_MAHDAR_NO'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_CI_MATCHING_STATUS'] !== null ? autolinker.link(feature.properties['SUR_CI_MATCHING_STATUS'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_CI_NAME_IN_PALN'] !== null ? autolinker.link(feature.properties['SUR_CI_NAME_IN_PALN'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_CI_PARCEL_NO'] !== null ? autolinker.link(feature.properties['SUR_CI_PARCEL_NO'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_CI_PLAN_NO'] !== null ? autolinker.link(feature.properties['SUR_CI_PLAN_NO'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_DC_SURVEY_AREA_M2'] !== null ? autolinker.link(feature.properties['SUR_DC_SURVEY_AREA_M2'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_DC_SURVEY_COMPANY_NAME'] !== null ? autolinker.link(feature.properties['SUR_DC_SURVEY_COMPANY_NAME'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_DC_SURVEY_DATE'] !== null ? autolinker.link(feature.properties['SUR_DC_SURVEY_DATE'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_DC_SURVEY_REPORT_NAME'] !== null ? autolinker.link(feature.properties['SUR_DC_SURVEY_REPORT_NAME'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_EC_AVAILABLE_OPEN_SPACE'] !== null ? autolinker.link(feature.properties['SUR_EC_AVAILABLE_OPEN_SPACE'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_EC_BUILT_UP_M2'] !== null ? autolinker.link(feature.properties['SUR_EC_BUILT_UP_M2'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_EC_CONTRACTOR_NAME'] !== null ? autolinker.link(feature.properties['SUR_EC_CONTRACTOR_NAME'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_EC_DEVELOPMENT_STATUS'] !== null ? autolinker.link(feature.properties['SUR_EC_DEVELOPMENT_STATUS'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_EC_HARDSCAPE_M2'] !== null ? autolinker.link(feature.properties['SUR_EC_HARDSCAPE_M2'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_EC_OVERLAPPED_WITH'] !== null ? autolinker.link(feature.properties['SUR_EC_OVERLAPPED_WITH'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_EC_SOFTSCAPE_M2'] !== null ? autolinker.link(feature.properties['SUR_EC_SOFTSCAPE_M2'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_GC_CRNT_CANOPY_M2'] !== null ? autolinker.link(feature.properties['SUR_GC_CRNT_CANOPY_M2'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_GC_CRNT_LAWN_M2'] !== null ? autolinker.link(feature.properties['SUR_GC_CRNT_LAWN_M2'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_GC_CRNT_SHRUBS_CNT'] !== null ? autolinker.link(feature.properties['SUR_GC_CRNT_SHRUBS_CNT'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_GC_CRNT_TREES_CNT'] !== null ? autolinker.link(feature.properties['SUR_GC_CRNT_TREES_CNT'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_GC_KPI_CRNT_CANOPY_PCT'] !== null ? autolinker.link(feature.properties['SUR_GC_KPI_CRNT_CANOPY_PCT'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_GC_KPI_CRNT_VEGCOVER_PCT'] !== null ? autolinker.link(feature.properties['SUR_GC_KPI_CRNT_VEGCOVER_PCT'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_GC_LEVEL_OF_INTERVENTION'] !== null ? autolinker.link(feature.properties['SUR_GC_LEVEL_OF_INTERVENTION'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['IC_CRNT_IRRIGATION_WATER_TYPE'] !== null ? autolinker.link(feature.properties['IC_CRNT_IRRIGATION_WATER_TYPE'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_IC_CRNT_WATER_DEMAND_M3'] !== null ? autolinker.link(feature.properties['SUR_IC_CRNT_WATER_DEMAND_M3'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_IC_CRNT_WATER_QUALITY'] !== null ? autolinker.link(feature.properties['SUR_IC_CRNT_WATER_QUALITY'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_IC_CRNT_WATER_SOURCE'] !== null ? autolinker.link(feature.properties['SUR_IC_CRNT_WATER_SOURCE'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_CL_CATEGORY'] !== null ? autolinker.link(feature.properties['SUR_CL_CATEGORY'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_CL_MAIN_CATEGORY'] !== null ? autolinker.link(feature.properties['SUR_CL_MAIN_CATEGORY'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_CL_SUBCATEGORY'] !== null ? autolinker.link(feature.properties['SUR_CL_SUBCATEGORY'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_OWNERSHIP_TYPE'] !== null ? autolinker.link(feature.properties['SUR_OWNERSHIP_TYPE'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_EX_ROAD_WIDTH'] !== null ? autolinker.link(feature.properties['SUR_EX_ROAD_WIDTH'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_EX_ROAD_WIDTH_DESC'] !== null ? autolinker.link(feature.properties['SUR_EX_ROAD_WIDTH_DESC'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['CREATED_USER'] !== null ? autolinker.link(feature.properties['CREATED_USER'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['CREATED_DATE'] !== null ? autolinker.link(feature.properties['CREATED_DATE'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['LAST_EDITED_USER'] !== null ? autolinker.link(feature.properties['LAST_EDITED_USER'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['LAST_EDITED_DATE'] !== null ? autolinker.link(feature.properties['LAST_EDITED_DATE'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_CL_MAIN_CATEGORY_V2'] !== null ? autolinker.link(feature.properties['SUR_CL_MAIN_CATEGORY_V2'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_CL_CATEGORY_V2'] !== null ? autolinker.link(feature.properties['SUR_CL_CATEGORY_V2'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUR_CL_SUBCATEGORY_V2'] !== null ? autolinker.link(feature.properties['SUR_CL_SUBCATEGORY_V2'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['FABRIC_DATA_SOURCE'] !== null ? autolinker.link(feature.properties['FABRIC_DATA_SOURCE'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['MERGE_REF_ID_UID'] !== null ? autolinker.link(feature.properties['MERGE_REF_ID_UID'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['CatchBasin'] !== null ? autolinker.link(feature.properties['CatchBasin'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Ele_meter'] !== null ? autolinker.link(feature.properties['Ele_meter'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Elec_box'] !== null ? autolinker.link(feature.properties['Elec_box'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['LIGHT_STRE'] !== null ? autolinker.link(feature.properties['LIGHT_STRE'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Tel_Box'] !== null ? autolinker.link(feature.properties['Tel_Box'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Feeder_pil'] !== null ? autolinker.link(feature.properties['Feeder_pil'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Firehydrant'] !== null ? autolinker.link(feature.properties['Firehydrant'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['IRRIGATION'] !== null ? autolinker.link(feature.properties['IRRIGATION'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['irrg_valve'] !== null ? autolinker.link(feature.properties['irrg_valve'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['ISE_CLEAN'] !== null ? autolinker.link(feature.properties['ISE_CLEAN'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['HOUSE_CON'] !== null ? autolinker.link(feature.properties['HOUSE_CON'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['TELECOM_C'] !== null ? autolinker.link(feature.properties['TELECOM_C'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['TELCOM_T'] !== null ? autolinker.link(feature.properties['TELCOM_T'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['TRANSFORMER'] !== null ? autolinker.link(feature.properties['TRANSFORMER'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['WaterMeter'] !== null ? autolinker.link(feature.properties['WaterMeter'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Water_valve'] !== null ? autolinker.link(feature.properties['Water_valve'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['MANHOLE'] !== null ? autolinker.link(feature.properties['MANHOLE'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['TREE_SQM1'] !== null ? autolinker.link(feature.properties['TREE_SQM1'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['TREE_KPI1'] !== null ? autolinker.link(feature.properties['TREE_KPI1'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['PLANTER_AR'] !== null ? autolinker.link(feature.properties['PLANTER_AR'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['pLANTER_KP'] !== null ? autolinker.link(feature.properties['pLANTER_KP'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['FlowerBed_'] !== null ? autolinker.link(feature.properties['FlowerBed_'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['FlowerBedK'] !== null ? autolinker.link(feature.properties['FlowerBedK'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SHRUB_AREA'] !== null ? autolinker.link(feature.properties['SHRUB_AREA'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SHRUB_KPI'] !== null ? autolinker.link(feature.properties['SHRUB_KPI'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['LAWN_AREA'] !== null ? autolinker.link(feature.properties['LAWN_AREA'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['LAWN_KPI'] !== null ? autolinker.link(feature.properties['LAWN_KPI'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['HEDGE_AREA'] !== null ? autolinker.link(feature.properties['HEDGE_AREA'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['HEDGE_KPI'] !== null ? autolinker.link(feature.properties['HEDGE_KPI'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['GROUND_AREA'] !== null ? autolinker.link(feature.properties['GROUND_AREA'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['GROUND_KPI'] !== null ? autolinker.link(feature.properties['GROUND_KPI'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Relevant_buildings'] !== null ? autolinker.link(feature.properties['Relevant_buildings'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Doc_Ref'] !== null ? autolinker.link(feature.properties['Doc_Ref'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Road_Sidewalk'] !== null ? autolinker.link(feature.properties['Road_Sidewalk'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['sidewalk_matireal'] !== null ? autolinker.link(feature.properties['sidewalk_matireal'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['sidewalk_Width'] !== null ? autolinker.link(feature.properties['sidewalk_Width'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Carriageway'] !== null ? autolinker.link(feature.properties['Carriageway'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Median_Area'] !== null ? autolinker.link(feature.properties['Median_Area'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['surface_new'] !== null ? autolinker.link(feature.properties['surface_new'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Condition_new'] !== null ? autolinker.link(feature.properties['Condition_new'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Parking'] !== null ? autolinker.link(feature.properties['Parking'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Existence'] !== null ? autolinker.link(feature.properties['Existence'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['ROW'] !== null ? autolinker.link(feature.properties['ROW'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Plots_definition'] !== null ? autolinker.link(feature.properties['Plots_definition'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Median'] !== null ? autolinker.link(feature.properties['Median'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Median_width'] !== null ? autolinker.link(feature.properties['Median_width'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Carriage_Width'] !== null ? autolinker.link(feature.properties['Carriage_Width'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['ROAD_MARKER'] !== null ? autolinker.link(feature.properties['ROAD_MARKER'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_EX_R_1'] !== null ? autolinker.link(feature.properties['REF_EX_R_1'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['FID'] !== null ? autolinker.link(feature.properties['FID'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['OBJECTID_1'] !== null ? autolinker.link(feature.properties['OBJECTID_1'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_PM_GNH'] !== null ? autolinker.link(feature.properties['REF_PM_GNH'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_PM_G_1'] !== null ? autolinker.link(feature.properties['REF_PM_G_1'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_PM_G_2'] !== null ? autolinker.link(feature.properties['REF_PM_G_2'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_PM_COM'] !== null ? autolinker.link(feature.properties['REF_PM_COM'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_PM_CON'] !== null ? autolinker.link(feature.properties['REF_PM_CON'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_PM_C_1'] !== null ? autolinker.link(feature.properties['REF_PM_C_1'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_PM_CUR'] !== null ? autolinker.link(feature.properties['REF_PM_CUR'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_PM_DES'] !== null ? autolinker.link(feature.properties['REF_PM_DES'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_PM_D_1'] !== null ? autolinker.link(feature.properties['REF_PM_D_1'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_PM_D_2'] !== null ? autolinker.link(feature.properties['REF_PM_D_2'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_PM_EXI'] !== null ? autolinker.link(feature.properties['REF_PM_EXI'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_PM_PMC'] !== null ? autolinker.link(feature.properties['REF_PM_PMC'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_PM_P_1'] !== null ? autolinker.link(feature.properties['REF_PM_P_1'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_PM_SCO'] !== null ? autolinker.link(feature.properties['REF_PM_SCO'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_PM_S_1'] !== null ? autolinker.link(feature.properties['REF_PM_S_1'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_CL_CHA'] !== null ? autolinker.link(feature.properties['REF_CL_CHA'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_CL_GUI'] !== null ? autolinker.link(feature.properties['REF_CL_GUI'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_CL_SUB'] !== null ? autolinker.link(feature.properties['REF_CL_SUB'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_DC_DAT'] !== null ? autolinker.link(feature.properties['REF_DC_DAT'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_DC_ORI'] !== null ? autolinker.link(feature.properties['REF_DC_ORI'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_DC_REA'] !== null ? autolinker.link(feature.properties['REF_DC_REA'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_DC_REM'] !== null ? autolinker.link(feature.properties['REF_DC_REM'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_DC_STA'] !== null ? autolinker.link(feature.properties['REF_DC_STA'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_ES_QUA'] !== null ? autolinker.link(feature.properties['REF_ES_QUA'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_ES_Q_1'] !== null ? autolinker.link(feature.properties['REF_ES_Q_1'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_ES_TRE'] !== null ? autolinker.link(feature.properties['REF_ES_TRE'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_ES_WAT'] !== null ? autolinker.link(feature.properties['REF_ES_WAT'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_ID_NAM'] !== null ? autolinker.link(feature.properties['REF_ID_NAM'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_ID_N_1'] !== null ? autolinker.link(feature.properties['REF_ID_N_1'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">REF_ID_UID</th>\
+                        <td class="visible-with-data" id="REF_ID_UID">' + (feature.properties['REF_ID_UID'] !== null ? autolinker.link(feature.properties['REF_ID_UID'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_ID_U_1'] !== null ? autolinker.link(feature.properties['REF_ID_U_1'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_ID_U_2'] !== null ? autolinker.link(feature.properties['REF_ID_U_2'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_LO_ANH'] !== null ? autolinker.link(feature.properties['REF_LO_ANH'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_LO_A_1'] !== null ? autolinker.link(feature.properties['REF_LO_A_1'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_LO_A_2'] !== null ? autolinker.link(feature.properties['REF_LO_A_2'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_LU_CON'] !== null ? autolinker.link(feature.properties['REF_LU_CON'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_LU_PLA'] !== null ? autolinker.link(feature.properties['REF_LU_PLA'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_QC_ACT'] !== null ? autolinker.link(feature.properties['REF_QC_ACT'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_QC_BY'] !== null ? autolinker.link(feature.properties['REF_QC_BY'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_QC_REM'] !== null ? autolinker.link(feature.properties['REF_QC_REM'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_QC_SUB'] !== null ? autolinker.link(feature.properties['REF_QC_SUB'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_SYS_CR'] !== null ? autolinker.link(feature.properties['REF_SYS_CR'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_SYS__1'] !== null ? autolinker.link(feature.properties['REF_SYS__1'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_SYS_MO'] !== null ? autolinker.link(feature.properties['REF_SYS_MO'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_SYS__2'] !== null ? autolinker.link(feature.properties['REF_SYS__2'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_CL_CAT'] !== null ? autolinker.link(feature.properties['REF_CL_CAT'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_CL_MAI'] !== null ? autolinker.link(feature.properties['REF_CL_MAI'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_CL_S_1'] !== null ? autolinker.link(feature.properties['REF_CL_S_1'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_PM_IS_'] !== null ? autolinker.link(feature.properties['REF_PM_IS_'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_OWNERS'] !== null ? autolinker.link(feature.properties['REF_OWNERS'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_EX_ROA'] !== null ? autolinker.link(feature.properties['REF_EX_ROA'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_EX_R_12'] !== null ? autolinker.link(feature.properties['REF_EX_R_12'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_CL_ROA'] !== null ? autolinker.link(feature.properties['REF_CL_ROA'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_CI_PAR'] !== null ? autolinker.link(feature.properties['REF_CI_PAR'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_CI_PLA'] !== null ? autolinker.link(feature.properties['REF_CI_PLA'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_LU_AMA'] !== null ? autolinker.link(feature.properties['REF_LU_AMA'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_EX_EP_'] !== null ? autolinker.link(feature.properties['REF_EX_EP_'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_PM_GIS'] !== null ? autolinker.link(feature.properties['REF_PM_GIS'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_CL_M_1'] !== null ? autolinker.link(feature.properties['REF_CL_M_1'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_CL_C_1'] !== null ? autolinker.link(feature.properties['REF_CL_C_1'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_CL_S_2'] !== null ? autolinker.link(feature.properties['REF_CL_S_2'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['CREATED_US'] !== null ? autolinker.link(feature.properties['CREATED_US'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['CREATED_DA'] !== null ? autolinker.link(feature.properties['CREATED_DA'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['LAST_EDITE'] !== null ? autolinker.link(feature.properties['LAST_EDITE'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['LAST_EDI_1'] !== null ? autolinker.link(feature.properties['LAST_EDI_1'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_CI_P_1'] !== null ? autolinker.link(feature.properties['REF_CI_P_1'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_CI_P_2'] !== null ? autolinker.link(feature.properties['REF_CI_P_2'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_IRR_WA'] !== null ? autolinker.link(feature.properties['REF_IRR_WA'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['DESIGN_WAT'] !== null ? autolinker.link(feature.properties['DESIGN_WAT'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['ACTUAL_WAT'] !== null ? autolinker.link(feature.properties['ACTUAL_WAT'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SHAPE_Leng'] !== null ? autolinker.link(feature.properties['SHAPE_Leng'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SHAPE_Area_1'] !== null ? autolinker.link(feature.properties['SHAPE_Area_1'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['ES_TREE_WA'] !== null ? autolinker.link(feature.properties['ES_TREE_WA'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['ES_SHRUBS_'] !== null ? autolinker.link(feature.properties['ES_SHRUBS_'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['ES_SHRAUBS'] !== null ? autolinker.link(feature.properties['ES_SHRAUBS'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['ES_GROUNDC'] !== null ? autolinker.link(feature.properties['ES_GROUNDC'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['ES_GC_WATE'] !== null ? autolinker.link(feature.properties['ES_GC_WATE'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['ES_LAWN_M2'] !== null ? autolinker.link(feature.properties['ES_LAWN_M2'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['ES_LAWN_WA'] !== null ? autolinker.link(feature.properties['ES_LAWN_WA'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['GEN_WATER_'] !== null ? autolinker.link(feature.properties['GEN_WATER_'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['TYPE_CODE'] !== null ? autolinker.link(feature.properties['TYPE_CODE'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['TYPE'] !== null ? autolinker.link(feature.properties['TYPE'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['CONTRACT_C'] !== null ? autolinker.link(feature.properties['CONTRACT_C'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['CONTRACT_N'] !== null ? autolinker.link(feature.properties['CONTRACT_N'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['CONTRACT_S'] !== null ? autolinker.link(feature.properties['CONTRACT_S'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['CONTRACT_P'] !== null ? autolinker.link(feature.properties['CONTRACT_P'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['CONTRACT_1'] !== null ? autolinker.link(feature.properties['CONTRACT_1'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['CONTRACT_E'] !== null ? autolinker.link(feature.properties['CONTRACT_E'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['CONTRACT_2'] !== null ? autolinker.link(feature.properties['CONTRACT_2'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['CONTRACT_3'] !== null ? autolinker.link(feature.properties['CONTRACT_3'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['ACTIVITY_C'] !== null ? autolinker.link(feature.properties['ACTIVITY_C'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['ACTIVITY_N'] !== null ? autolinker.link(feature.properties['ACTIVITY_N'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['ACTIVITY_S'] !== null ? autolinker.link(feature.properties['ACTIVITY_S'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['ACTIVITY_P'] !== null ? autolinker.link(feature.properties['ACTIVITY_P'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['ACTIVITY_1'] !== null ? autolinker.link(feature.properties['ACTIVITY_1'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['ACTIVITY_E'] !== null ? autolinker.link(feature.properties['ACTIVITY_E'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['ACTIVITY_2'] !== null ? autolinker.link(feature.properties['ACTIVITY_2'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['ACTIVITY_3'] !== null ? autolinker.link(feature.properties['ACTIVITY_3'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['ZONE_NUMBE'] !== null ? autolinker.link(feature.properties['ZONE_NUMBE'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['ZONE_DESIG'] !== null ? autolinker.link(feature.properties['ZONE_DESIG'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['ZONE_CONST'] !== null ? autolinker.link(feature.properties['ZONE_CONST'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['ES_CANOPY_'] !== null ? autolinker.link(feature.properties['ES_CANOPY_'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['ES_CANOPY1'] !== null ? autolinker.link(feature.properties['ES_CANOPY1'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['ES_SHRUBS1'] !== null ? autolinker.link(feature.properties['ES_SHRUBS1'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['ES_GROUN_1'] !== null ? autolinker.link(feature.properties['ES_GROUN_1'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['TREE_SQM1_1'] !== null ? autolinker.link(feature.properties['TREE_SQM1_1'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['TREE_KPI1_1'] !== null ? autolinker.link(feature.properties['TREE_KPI1_1'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['PLANTER_AR_1'] !== null ? autolinker.link(feature.properties['PLANTER_AR_1'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['pLANTER_KP_1'] !== null ? autolinker.link(feature.properties['pLANTER_KP_1'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['FlowerBed1'] !== null ? autolinker.link(feature.properties['FlowerBed1'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['FlowerBed1_1'] !== null ? autolinker.link(feature.properties['FlowerBed1_1'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SHRUB_AREA_1'] !== null ? autolinker.link(feature.properties['SHRUB_AREA_1'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SHRUB_KPI_1'] !== null ? autolinker.link(feature.properties['SHRUB_KPI_1'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['LAWN_AREA_1'] !== null ? autolinker.link(feature.properties['LAWN_AREA_1'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['LAWN_KPI_1'] !== null ? autolinker.link(feature.properties['LAWN_KPI_1'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['HEDGE_AREA_1'] !== null ? autolinker.link(feature.properties['HEDGE_AREA_1'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['HEDGE_KPI_1'] !== null ? autolinker.link(feature.properties['HEDGE_KPI_1'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['GROUND_COV'] !== null ? autolinker.link(feature.properties['GROUND_COV'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['GROUND_C_1'] !== null ? autolinker.link(feature.properties['GROUND_C_1'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['BOUNDARY_A'] !== null ? autolinker.link(feature.properties['BOUNDARY_A'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['AMANA_LINK'] !== null ? autolinker.link(feature.properties['AMANA_LINK'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['UTT_Catch_'] !== null ? autolinker.link(feature.properties['UTT_Catch_'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['UTT_ELEC_M'] !== null ? autolinker.link(feature.properties['UTT_ELEC_M'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['UTT_ELEC_B'] !== null ? autolinker.link(feature.properties['UTT_ELEC_B'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['LIGHT_STRE_1'] !== null ? autolinker.link(feature.properties['LIGHT_STRE_1'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['TELE_B'] !== null ? autolinker.link(feature.properties['TELE_B'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Feeder_pil_1'] !== null ? autolinker.link(feature.properties['Feeder_pil_1'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['FIRE_H'] !== null ? autolinker.link(feature.properties['FIRE_H'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['IRRIGATION_1'] !== null ? autolinker.link(feature.properties['IRRIGATION_1'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['irrg_valve_1'] !== null ? autolinker.link(feature.properties['irrg_valve_1'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['ISE_CLEAN_1'] !== null ? autolinker.link(feature.properties['ISE_CLEAN_1'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['HOUSE_CON_1'] !== null ? autolinker.link(feature.properties['HOUSE_CON_1'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['TELECOM_C_1'] !== null ? autolinker.link(feature.properties['TELECOM_C_1'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['TELCOM_T_1'] !== null ? autolinker.link(feature.properties['TELCOM_T_1'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['TRANSF'] !== null ? autolinker.link(feature.properties['TRANSF'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['W_METER'] !== null ? autolinker.link(feature.properties['W_METER'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['W_VALVE'] !== null ? autolinker.link(feature.properties['W_VALVE'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['MANHOLE_1'] !== null ? autolinker.link(feature.properties['MANHOLE_1'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['AMMANA_PIC'] !== null ? autolinker.link(feature.properties['AMMANA_PIC'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Photo1'] !== null ? autolinker.link(feature.properties['Photo1'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['photo2'] !== null ? autolinker.link(feature.properties['photo2'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['photo3'] !== null ? autolinker.link(feature.properties['photo3'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['photo4'] !== null ? autolinker.link(feature.properties['photo4'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SHAPE_Length'] !== null ? autolinker.link(feature.properties['SHAPE_Length'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SHAPE_Area'] !== null ? autolinker.link(feature.properties['SHAPE_Area'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['photo5'] !== null ? autolinker.link(feature.properties['photo5'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['photo6'] !== null ? autolinker.link(feature.properties['photo6'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['newname'] !== null ? autolinker.link(feature.properties['newname'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+        function style_FL_SUR_CAD_3_0(feature) {
+            var context = {
+                feature: feature,
+                variables: {}
+            };
+            // Start of if blocks and style check logic
+            if (exp_FL_SUR_CAD_3rule0_eval_expression(context)) {
+                  return {
+                pane: 'pane_FL_SUR_CAD_3',
+                opacity: 1,
+                color: 'rgba(128,14,16,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(228,26,28,1.0)',
+                interactive: true,
+            };
+                }
+            else {
+                return {fill: false, stroke: false};
+            }
+        }
+        map.createPane('pane_FL_SUR_CAD_3');
+        map.getPane('pane_FL_SUR_CAD_3').style.zIndex = 403;
+        map.getPane('pane_FL_SUR_CAD_3').style['mix-blend-mode'] = 'normal';
+        var layer_FL_SUR_CAD_3 = new L.geoJson(json_FL_SUR_CAD_3, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_FL_SUR_CAD_3',
+            layerName: 'layer_FL_SUR_CAD_3',
+            pane: 'pane_FL_SUR_CAD_3',
+            onEachFeature: pop_FL_SUR_CAD_3,
+            style: style_FL_SUR_CAD_3_0,
+        });
+        bounds_group.addLayer(layer_FL_SUR_CAD_3);
+        map.addLayer(layer_FL_SUR_CAD_3);
+        function pop_FL_SUR_component_4(feature, layer) {
+            layer.on({
+                mouseout: function(e) {
+                    if (typeof layer.closePopup == 'function') {
+                        layer.closePopup();
+                    } else {
+                        layer.eachLayer(function(feature){
+                            feature.closePopup()
+                        });
+                    }
+                },
+                mouseover: highlightFeature,
+            });
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['OBJECTID'] !== null ? autolinker.link(feature.properties['OBJECTID'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_PM_GNH_ID'] !== null ? autolinker.link(feature.properties['REF_PM_GNH_ID'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_PM_GNH_NAME_AR'] !== null ? autolinker.link(feature.properties['REF_PM_GNH_NAME_AR'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_PM_GNH_NAME_EN'] !== null ? autolinker.link(feature.properties['REF_PM_GNH_NAME_EN'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_PM_COMMENTS'] !== null ? autolinker.link(feature.properties['REF_PM_COMMENTS'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_PM_CONSTRUCTION_GROUP'] !== null ? autolinker.link(feature.properties['REF_PM_CONSTRUCTION_GROUP'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_PM_CONSTRUCTION_PACKAGE'] !== null ? autolinker.link(feature.properties['REF_PM_CONSTRUCTION_PACKAGE'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_PM_CURRENT_STAGE'] !== null ? autolinker.link(feature.properties['REF_PM_CURRENT_STAGE'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_PM_DESIGN_DS'] !== null ? autolinker.link(feature.properties['REF_PM_DESIGN_DS'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_PM_DESIGN_GROUP'] !== null ? autolinker.link(feature.properties['REF_PM_DESIGN_GROUP'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_PM_DESIGN_PACKAGE'] !== null ? autolinker.link(feature.properties['REF_PM_DESIGN_PACKAGE'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_PM_EXISTING_FUTURE'] !== null ? autolinker.link(feature.properties['REF_PM_EXISTING_FUTURE'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_PM_PMC_GROUP'] !== null ? autolinker.link(feature.properties['REF_PM_PMC_GROUP'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_PM_PMC_PACKAGE'] !== null ? autolinker.link(feature.properties['REF_PM_PMC_PACKAGE'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_PM_SCOPE'] !== null ? autolinker.link(feature.properties['REF_PM_SCOPE'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_PM_SCOPE_REMARKS'] !== null ? autolinker.link(feature.properties['REF_PM_SCOPE_REMARKS'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_CL_CHARACTER_ZONE'] !== null ? autolinker.link(feature.properties['REF_CL_CHARACTER_ZONE'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_CL_GUIDELINE_CODE'] !== null ? autolinker.link(feature.properties['REF_CL_GUIDELINE_CODE'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_CL_SUB_CHARACTER_ZONE'] !== null ? autolinker.link(feature.properties['REF_CL_SUB_CHARACTER_ZONE'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_DC_DATA_SOURCE'] !== null ? autolinker.link(feature.properties['REF_DC_DATA_SOURCE'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_DC_ORIGINAL_AREA_M2'] !== null ? autolinker.link(feature.properties['REF_DC_ORIGINAL_AREA_M2'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_DC_REASON_OF_CHANGE'] !== null ? autolinker.link(feature.properties['REF_DC_REASON_OF_CHANGE'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_DC_REMARK'] !== null ? autolinker.link(feature.properties['REF_DC_REMARK'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_DC_STAKEHOLDER_NAME'] !== null ? autolinker.link(feature.properties['REF_DC_STAKEHOLDER_NAME'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_ES_QUANTITY'] !== null ? autolinker.link(feature.properties['REF_ES_QUANTITY'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_ES_QUANTITY_UNIT'] !== null ? autolinker.link(feature.properties['REF_ES_QUANTITY_UNIT'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_ES_TREE_BUDGET_CNT'] !== null ? autolinker.link(feature.properties['REF_ES_TREE_BUDGET_CNT'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_ES_WATER_BUDGET_M3D'] !== null ? autolinker.link(feature.properties['REF_ES_WATER_BUDGET_M3D'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_ID_NAME_ARABIC'] !== null ? autolinker.link(feature.properties['REF_ID_NAME_ARABIC'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_ID_NAME_ENGLISH'] !== null ? autolinker.link(feature.properties['REF_ID_NAME_ENGLISH'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_ID_UID'] !== null ? autolinker.link(feature.properties['REF_ID_UID'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_ID_UID_V1'] !== null ? autolinker.link(feature.properties['REF_ID_UID_V1'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_ID_UID_V2'] !== null ? autolinker.link(feature.properties['REF_ID_UID_V2'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_LO_ANH_ID'] !== null ? autolinker.link(feature.properties['REF_LO_ANH_ID'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_LO_ANH_NAME_AR'] !== null ? autolinker.link(feature.properties['REF_LO_ANH_NAME_AR'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_LO_ANH_NAME_EN'] !== null ? autolinker.link(feature.properties['REF_LO_ANH_NAME_EN'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_LU_CONTEXTUAL'] !== null ? autolinker.link(feature.properties['REF_LU_CONTEXTUAL'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_LU_PLAN'] !== null ? autolinker.link(feature.properties['REF_LU_PLAN'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_QC_ACTION'] !== null ? autolinker.link(feature.properties['REF_QC_ACTION'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_QC_BY'] !== null ? autolinker.link(feature.properties['REF_QC_BY'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_QC_REMARKS'] !== null ? autolinker.link(feature.properties['REF_QC_REMARKS'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_QC_SUBMITTAL_CODE'] !== null ? autolinker.link(feature.properties['REF_QC_SUBMITTAL_CODE'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_SYS_CREATED'] !== null ? autolinker.link(feature.properties['REF_SYS_CREATED'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_SYS_CREATED_BY'] !== null ? autolinker.link(feature.properties['REF_SYS_CREATED_BY'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_SYS_MODIFIED'] !== null ? autolinker.link(feature.properties['REF_SYS_MODIFIED'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_SYS_MODIFIED_BY'] !== null ? autolinker.link(feature.properties['REF_SYS_MODIFIED_BY'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_CL_CATEGORY'] !== null ? autolinker.link(feature.properties['REF_CL_CATEGORY'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_CL_MAIN_CATEGORY'] !== null ? autolinker.link(feature.properties['REF_CL_MAIN_CATEGORY'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_CL_SUBCATEGORY'] !== null ? autolinker.link(feature.properties['REF_CL_SUBCATEGORY'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_PM_IS_GRP_PROJECT'] !== null ? autolinker.link(feature.properties['REF_PM_IS_GRP_PROJECT'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_OWNERSHIP_TYPE'] !== null ? autolinker.link(feature.properties['REF_OWNERSHIP_TYPE'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_EX_ROAD_WIDTH'] !== null ? autolinker.link(feature.properties['REF_EX_ROAD_WIDTH'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_EX_ROAD_WIDTH_DESC'] !== null ? autolinker.link(feature.properties['REF_EX_ROAD_WIDTH_DESC'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_CL_ROAD_LEVEL'] !== null ? autolinker.link(feature.properties['REF_CL_ROAD_LEVEL'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_CI_PARCEL_NO'] !== null ? autolinker.link(feature.properties['REF_CI_PARCEL_NO'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_CI_PLAN_NO'] !== null ? autolinker.link(feature.properties['REF_CI_PLAN_NO'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_LU_AMANAH'] !== null ? autolinker.link(feature.properties['REF_LU_AMANAH'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_EX_EP_ROAD_UID'] !== null ? autolinker.link(feature.properties['REF_EX_EP_ROAD_UID'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_PM_GIS_CODE'] !== null ? autolinker.link(feature.properties['REF_PM_GIS_CODE'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_CL_MAIN_CATEGORY_V2'] !== null ? autolinker.link(feature.properties['REF_CL_MAIN_CATEGORY_V2'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_CL_CATEGORY_V2'] !== null ? autolinker.link(feature.properties['REF_CL_CATEGORY_V2'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_CL_SUBCATEGORY_V2'] !== null ? autolinker.link(feature.properties['REF_CL_SUBCATEGORY_V2'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['CREATED_USER'] !== null ? autolinker.link(feature.properties['CREATED_USER'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['CREATED_DATE'] !== null ? autolinker.link(feature.properties['CREATED_DATE'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['LAST_EDITED_USER'] !== null ? autolinker.link(feature.properties['LAST_EDITED_USER'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['LAST_EDITED_DATE'] !== null ? autolinker.link(feature.properties['LAST_EDITED_DATE'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_CI_PARCELID'] !== null ? autolinker.link(feature.properties['REF_CI_PARCELID'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_CI_PLANID'] !== null ? autolinker.link(feature.properties['REF_CI_PLANID'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['REF_IRR_WATER_COVERAGE'] !== null ? autolinker.link(feature.properties['REF_IRR_WATER_COVERAGE'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['DESIGN_WATER_DEMAND_M3D'] !== null ? autolinker.link(feature.properties['DESIGN_WATER_DEMAND_M3D'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['ACTUAL_WATER_DEMAND_M3D'] !== null ? autolinker.link(feature.properties['ACTUAL_WATER_DEMAND_M3D'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['ES_TREE_WATER_DEMAND_M3D'] !== null ? autolinker.link(feature.properties['ES_TREE_WATER_DEMAND_M3D'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['ES_SHRUBS_M2'] !== null ? autolinker.link(feature.properties['ES_SHRUBS_M2'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['ES_SHRAUBS_WATER_DEMAND_M3D'] !== null ? autolinker.link(feature.properties['ES_SHRAUBS_WATER_DEMAND_M3D'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['ES_GROUNDCOVER_M2'] !== null ? autolinker.link(feature.properties['ES_GROUNDCOVER_M2'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['ES_GC_WATER_DEMAND_M3D'] !== null ? autolinker.link(feature.properties['ES_GC_WATER_DEMAND_M3D'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['ES_LAWN_M2'] !== null ? autolinker.link(feature.properties['ES_LAWN_M2'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['ES_LAWN_WATER_DEMAND_M3D'] !== null ? autolinker.link(feature.properties['ES_LAWN_WATER_DEMAND_M3D'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['GEN_WATER_SUPPLY_SOURCE'] !== null ? autolinker.link(feature.properties['GEN_WATER_SUPPLY_SOURCE'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['TYPE_CODE'] !== null ? autolinker.link(feature.properties['TYPE_CODE'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['TYPE'] !== null ? autolinker.link(feature.properties['TYPE'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['CONTRACT_CODE'] !== null ? autolinker.link(feature.properties['CONTRACT_CODE'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['CONTRACT_NAME'] !== null ? autolinker.link(feature.properties['CONTRACT_NAME'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['CONTRACT_STATUS'] !== null ? autolinker.link(feature.properties['CONTRACT_STATUS'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['CONTRACT_PROGRESS'] !== null ? autolinker.link(feature.properties['CONTRACT_PROGRESS'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['CONTRACT_START_DATE'] !== null ? autolinker.link(feature.properties['CONTRACT_START_DATE'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['CONTRACT_END_DATE'] !== null ? autolinker.link(feature.properties['CONTRACT_END_DATE'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['CONTRACT_START_YEAR'] !== null ? autolinker.link(feature.properties['CONTRACT_START_YEAR'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['CONTRACT_END_YEAR'] !== null ? autolinker.link(feature.properties['CONTRACT_END_YEAR'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['ACTIVITY_CODE'] !== null ? autolinker.link(feature.properties['ACTIVITY_CODE'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['ACTIVITY_NAME'] !== null ? autolinker.link(feature.properties['ACTIVITY_NAME'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['ACTIVITY_STATUS'] !== null ? autolinker.link(feature.properties['ACTIVITY_STATUS'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['ACTIVITY_PROGRESS'] !== null ? autolinker.link(feature.properties['ACTIVITY_PROGRESS'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['ACTIVITY_START_DATE'] !== null ? autolinker.link(feature.properties['ACTIVITY_START_DATE'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['ACTIVITY_END_DATE'] !== null ? autolinker.link(feature.properties['ACTIVITY_END_DATE'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['ACTIVITY_START_YEAR'] !== null ? autolinker.link(feature.properties['ACTIVITY_START_YEAR'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['ACTIVITY_END_YEAR'] !== null ? autolinker.link(feature.properties['ACTIVITY_END_YEAR'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['ZONE_NUMBER'] !== null ? autolinker.link(feature.properties['ZONE_NUMBER'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['ZONE_DESIGN_GROUP'] !== null ? autolinker.link(feature.properties['ZONE_DESIGN_GROUP'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['ZONE_CONSTRUCTION_PACKAGE'] !== null ? autolinker.link(feature.properties['ZONE_CONSTRUCTION_PACKAGE'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['ES_CANOPY_AREA_M2'] !== null ? autolinker.link(feature.properties['ES_CANOPY_AREA_M2'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['ES_CANOPY_PCT'] !== null ? autolinker.link(feature.properties['ES_CANOPY_PCT'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['ES_SHRUBS_CNT'] !== null ? autolinker.link(feature.properties['ES_SHRUBS_CNT'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['ES_GROUNDCOVER_CNT'] !== null ? autolinker.link(feature.properties['ES_GROUNDCOVER_CNT'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['StreetArea'] !== null ? autolinker.link(feature.properties['StreetArea'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['TREE_SQM'] !== null ? autolinker.link(feature.properties['TREE_SQM'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['TREE_KPI'] !== null ? autolinker.link(feature.properties['TREE_KPI'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['PLANTER_SQM'] !== null ? autolinker.link(feature.properties['PLANTER_SQM'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['PLANTER_KPI'] !== null ? autolinker.link(feature.properties['PLANTER_KPI'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['FlowerBed_SQM'] !== null ? autolinker.link(feature.properties['FlowerBed_SQM'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['FlowerBed_KPI'] !== null ? autolinker.link(feature.properties['FlowerBed_KPI'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SHRUB_SQM'] !== null ? autolinker.link(feature.properties['SHRUB_SQM'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SHRUB_KPI'] !== null ? autolinker.link(feature.properties['SHRUB_KPI'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['LAWN_SQM'] !== null ? autolinker.link(feature.properties['LAWN_SQM'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['LAWN_KPI'] !== null ? autolinker.link(feature.properties['LAWN_KPI'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['HEDGE_SQM'] !== null ? autolinker.link(feature.properties['HEDGE_SQM'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['HEDGE_KPI'] !== null ? autolinker.link(feature.properties['HEDGE_KPI'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['GROUND_COVER_SQM'] !== null ? autolinker.link(feature.properties['GROUND_COVER_SQM'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['GROUND_COVER_KPI'] !== null ? autolinker.link(feature.properties['GROUND_COVER_KPI'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['AMMANA_PIC'] !== null ? autolinker.link(feature.properties['AMMANA_PIC'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['AUTOCAD_PICTURE'] !== null ? autolinker.link(feature.properties['AUTOCAD_PICTURE'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['UTT_Catch_Basin'] !== null ? autolinker.link(feature.properties['UTT_Catch_Basin'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['UTT_ELEC_M'] !== null ? autolinker.link(feature.properties['UTT_ELEC_M'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['UTT_ELEC_BOX'] !== null ? autolinker.link(feature.properties['UTT_ELEC_BOX'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['LIGHT_STREET'] !== null ? autolinker.link(feature.properties['LIGHT_STREET'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['TELE_BOX'] !== null ? autolinker.link(feature.properties['TELE_BOX'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Feeder_piller'] !== null ? autolinker.link(feature.properties['Feeder_piller'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['FIRE_Hydrant'] !== null ? autolinker.link(feature.properties['FIRE_Hydrant'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['HOUSE_Connection'] !== null ? autolinker.link(feature.properties['HOUSE_Connection'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Transformer'] !== null ? autolinker.link(feature.properties['Transformer'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Water_Meter'] !== null ? autolinker.link(feature.properties['Water_Meter'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Water_Valve'] !== null ? autolinker.link(feature.properties['Water_Valve'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['IRRIGATION_SPRINKL'] !== null ? autolinker.link(feature.properties['IRRIGATION_SPRINKL'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['ISE_CLEANOUT'] !== null ? autolinker.link(feature.properties['ISE_CLEANOUT'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['TELECOM_CONNICTION'] !== null ? autolinker.link(feature.properties['TELECOM_CONNICTION'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['TELCOM_TOWER'] !== null ? autolinker.link(feature.properties['TELCOM_TOWER'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['MANHOLE'] !== null ? autolinker.link(feature.properties['MANHOLE'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['IRRIGATION_VALVE'] !== null ? autolinker.link(feature.properties['IRRIGATION_VALVE'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['AMMANA_LINK'] !== null ? autolinker.link(feature.properties['AMMANA_LINK'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['CATEGORY'] !== null ? autolinker.link(feature.properties['CATEGORY'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUB_CATEGORY'] !== null ? autolinker.link(feature.properties['SUB_CATEGORY'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['STATUS'] !== null ? autolinker.link(feature.properties['STATUS'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SHAPE_Length'] !== null ? autolinker.link(feature.properties['SHAPE_Length'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SHAPE_Area'] !== null ? autolinker.link(feature.properties['SHAPE_Area'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['matreials'] !== null ? autolinker.link(feature.properties['matreials'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Sidewalk_material'] !== null ? autolinker.link(feature.properties['Sidewalk_material'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Urban_Furniture'] !== null ? autolinker.link(feature.properties['Urban_Furniture'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Waste_management'] !== null ? autolinker.link(feature.properties['Waste_management'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['TrafficLightSignal'] !== null ? autolinker.link(feature.properties['TrafficLightSignal'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['survey_area'] !== null ? autolinker.link(feature.properties['survey_area'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['component_Ammana_area'] !== null ? autolinker.link(feature.properties['component_Ammana_area'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['survey_ratio2'] !== null ? autolinker.link(feature.properties['survey_ratio2'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Amana_land_use_and_plot_geometry'] !== null ? autolinker.link(feature.properties['Amana_land_use_and_plot_geometry'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Hardscape_Analysis_area'] !== null ? autolinker.link(feature.properties['Hardscape_Analysis_area'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Doc_Ref'] !== null ? autolinker.link(feature.properties['Doc_Ref'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Parking'] !== null ? autolinker.link(feature.properties['Parking'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Mature_Canopy_Area'] !== null ? autolinker.link(feature.properties['Mature_Canopy_Area'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['General_photo1'] !== null ? autolinker.link(feature.properties['General_photo1'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['General_photo2'] !== null ? autolinker.link(feature.properties['General_photo2'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Electric_Box_photo'] !== null ? autolinker.link(feature.properties['Electric_Box_photo'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Feederpiller_photo'] !== null ? autolinker.link(feature.properties['Feederpiller_photo'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Tele_Tower_photo'] !== null ? autolinker.link(feature.properties['Tele_Tower_photo'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Transformer_photo'] !== null ? autolinker.link(feature.properties['Transformer_photo'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_FL_SUR_component_4_0() {
+            return {
+                pane: 'pane_FL_SUR_component_4',
+                interactive: true,
+            }
+        }
+        function style_FL_SUR_component_4_1() {
+            return {
+                pane: 'pane_FL_SUR_component_4',
+                opacity: 1,
+                color: 'rgba(0,0,0,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fillOpacity: 0,
+                interactive: true,
+            }
+        }
+        map.createPane('pane_FL_SUR_component_4');
+        map.getPane('pane_FL_SUR_component_4').style.zIndex = 404;
+        map.getPane('pane_FL_SUR_component_4').style['mix-blend-mode'] = 'normal';
+        var layer_FL_SUR_component_4 = new L.geoJson.multiStyle(json_FL_SUR_component_4, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_FL_SUR_component_4',
+            layerName: 'layer_FL_SUR_component_4',
+            pane: 'pane_FL_SUR_component_4',
+            onEachFeature: pop_FL_SUR_component_4,
+            styles: [style_FL_SUR_component_4_0,style_FL_SUR_component_4_1,]
+        });
+        bounds_group.addLayer(layer_FL_SUR_component_4);
+        map.addLayer(layer_FL_SUR_component_4);
+        var baseMaps = {};
+        var overlaysTree = [
+            {label: '<img src="legend/FL_SUR_component_4.png" /> FL_SUR_component', layer: layer_FL_SUR_component_4},
+            {label: 'FL_SUR_CAD<br /><table><tr><td style="text-align: center;"><img src="legend/FL_SUR_CAD_3_0.png" /></td><td></td></tr></table>', layer: layer_FL_SUR_CAD_3},
+            {label: '<img src="legend/FL_SUR_CAD_2.png" /> FL_SUR_CAD', layer: layer_FL_SUR_CAD_2},
+            {label: '<img src="legend/ALYASMEEN_DISCRECT_1.png" /> ALYASMEEN_DISCRECT', layer: layer_ALYASMEEN_DISCRECT_1},
+            {label: "Google Satellite", layer: layer_GoogleSatellite_0},]
+        var lay = L.control.layers.tree(null, overlaysTree,{
+            //namedToggle: true,
+            //selectorBack: false,
+            //closedSymbol: '&#8862; &#x1f5c0;',
+            //openedSymbol: '&#8863; &#x1f5c1;',
+            //collapseAll: 'Collapse all',
+            //expandAll: 'Expand all',
+            collapsed: false, 
+        });
+        lay.addTo(map);
+        setBounds();
+        var i = 0;
+        layer_FL_SUR_CAD_3.eachLayer(function(layer) {
+            var context = {
+                feature: layer.feature,
+                variables: {}
+            };
+            layer.bindTooltip((layer.feature.properties['SUR_ID_UID'] !== null?String('<div style="color: #000000; font-size: 10pt; font-style: italic; font-family: \'Cambria\', sans-serif;">' + layer.feature.properties['SUR_ID_UID']) + '</div>':''), {permanent: true, offset: [-0, -16], className: 'css_FL_SUR_CAD_3'});
+            labels.push(layer);
+            totalMarkers += 1;
+              layer.added = true;
+              addLabel(layer, i);
+              i++;
+        });
+        var i = 0;
+        layer_FL_SUR_component_4.eachLayer(function(layer) {
+            var context = {
+                feature: layer.feature,
+                variables: {}
+            };
+            layer.bindTooltip((layer.feature.properties['REF_ID_UID'] !== null?String('<div style="color: #323232; font-size: 10pt; font-family: \'Arial\', sans-serif;">' + layer.feature.properties['REF_ID_UID']) + '</div>':''), {permanent: true, offset: [-0, -16], className: 'css_FL_SUR_component_4'});
+            labels.push(layer);
+            totalMarkers += 1;
+              layer.added = true;
+              addLabel(layer, i);
+              i++;
+        });
+        resetLabels([layer_FL_SUR_CAD_3,layer_FL_SUR_component_4]);
+        map.on("zoomend", function(){
+            resetLabels([layer_FL_SUR_CAD_3,layer_FL_SUR_component_4]);
+        });
+        map.on("layeradd", function(){
+            resetLabels([layer_FL_SUR_CAD_3,layer_FL_SUR_component_4]);
+        });
+        map.on("layerremove", function(){
+            resetLabels([layer_FL_SUR_CAD_3,layer_FL_SUR_component_4]);
+        });
+        </script>
+    </body>
+</html>
